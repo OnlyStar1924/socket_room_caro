@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Home page</title>
+</head>
+<body>
+    <h1>Home Page</h1>
+    <h2> Your name is <%= name %> </h2>
+
+    <form action="/users/logout" method="GET">
+        <button>Logout</button>
+    </form>
+    <form action="/users/update" method="GET">
+        <button>Update</button>
+    </form>
+</body>
+</html>
