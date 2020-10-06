@@ -2,6 +2,9 @@ var mysql = require('mysql');
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcryptjs');
+
+
+
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
@@ -60,6 +63,10 @@ router.get('/logout', function(req, res, next) {
   res.redirect('/users');
 });
 
+router.get('/public_chat', function(req, res, next) {
+  res.render('public_chat');
+});
+
 router.get('/update', function(req, res, next) {
   if (req.session.loggedin) {
     connection.query('SELECT * FROM users WHERE id = ?', req.session.id_user , function(error, results, fields) {
@@ -71,7 +78,6 @@ router.get('/update', function(req, res, next) {
     res.end();
   }
   //res.render('update',{name: [req.session.id_user, req.session.username, req.session.phone, req.session.address ]});
-
 });
 
 router.post('/update', function(req, res, next) {
@@ -87,6 +93,9 @@ router.post('/update', function(req, res, next) {
       });
 
 });
+
+// chat socketio
+
 
 
 module.exports = router;

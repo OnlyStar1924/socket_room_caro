@@ -3,6 +3,8 @@ var express = require('express');
 var path = require('path');
 var bcrypt = require('bcryptjs');
 
+
+
 var router = express.Router();
 var connection = mysql.createConnection({
   host     : 'localhost',
@@ -49,5 +51,8 @@ router.post('/register', function(req, res, next) {
     }
   });
 });
+
+
+
 
 module.exports = router;
