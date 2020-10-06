@@ -64,7 +64,7 @@ router.get('/logout', function(req, res, next) {
 });
 
 router.get('/public_chat', function(req, res, next) {
-  res.render('public_chat');
+  res.render('public_chat', {name: req.session.username});
 });
 
 router.get('/update', function(req, res, next) {
