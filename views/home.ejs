@@ -20,6 +20,11 @@
     <h1>Home Page</h1>
     <h2> Your name is <%= name %> </h2>
 
+    <form action="/users/find" method="POST">
+        <input type="text" name="text_find" placeholder="type here..." required>
+        <button>Find</button>
+    </form>
+
     <form action="/users/logout" method="GET">
         <button>Logout</button>
     </form>
@@ -30,7 +35,9 @@
         <button>Public Chat</button>
     </form>
 
-
+    </form><form action="/users/game" method="GET">
+        <button>Play game</button>
+    </form>
 
 
 </body>

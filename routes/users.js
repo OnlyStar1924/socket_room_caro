@@ -64,7 +64,11 @@ router.get('/logout', function(req, res, next) {
 });
 
 router.get('/public_chat', function(req, res, next) {
-  res.render('public_chat', {name: req.session.username});
+  if(req.session.loggedin){
+    res.render('public_chat', {name: req.session.username});
+  }else {
+    res.render('login');
+  }
 });
 
 router.get('/update', function(req, res, next) {
@@ -94,7 +98,26 @@ router.post('/update', function(req, res, next) {
 
 });
 
-// chat socketio
+router.get('/game', function(req, res, next) {
+  if(req.session.loggedin){
+    res.render('game', {name: req.session.username});
+  }else {
+    res.render('login');
+  }
+});
+
+router.post('/find', function(req, res, next) {
+  if(req.session.loggedin){
+    connection.query('SELECT * FROM users WHERE name = ?', req.body.text_find , function(error, results, fields) {
+      if (error) throw error;
+      console.log(results);
+      res.render('find',{name: [results[0].id, results[0].name, results[0].phone, results[0].address]});
+    });
+  }else {
+    res.render('login');
+  }
+});
+
 
 
 
