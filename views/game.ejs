@@ -14,7 +14,12 @@
     <canvas id="myCanvas" width="400" height="400"></canvas>
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
 <script>
+    var socket = io();
+
     var canvas = document.getElementById('myCanvas');
     var ctx = canvas.getContext("2d");
 
@@ -31,35 +36,35 @@
 
     var data = new Array(20);
     for (var i = 0; i < data.length; i++) {
-        data[i] = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+        data[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     canvas.addEventListener("click", onClick, false);
 
     init();
 
-    function init(){
+    function init() {
         drawGrid();
     }
-    function check(data,x,y){
+
+    function check(data, x, y) {
         //hang
-        var curX =x;
-        var curY =y;
+        var curX = x;
+        var curY = y;
         var count = 1;
-        while (curX - 1 >= 0 && data[curX- 1][curY] == data[x][y])
-        {
+        while (curX - 1 >= 0 && data[curX - 1][curY] == data[x][y]) {
             count++;
-            if(count >= 5){
-                var lX=x;
-                var rX=x;
-                while (rX + 1 <= 20 && data[rX + 1][y] == data[x][y]){
+            if (count >= 5) {
+                var lX = x;
+                var rX = x;
+                while (rX + 1 <= 20 && data[rX + 1][y] == data[x][y]) {
                     rX++;
                 }
-                while (lX - 1 >= 0 && data[lX - 1][y] == data[x][y]){
+                while (lX - 1 >= 0 && data[lX - 1][y] == data[x][y]) {
                     lX--;
                 }
-                ctx.moveTo(20*lX,20*y+10);
-                ctx.lineTo(20*rX+20,20*y+10);
+                ctx.moveTo(20 * lX, 20 * y + 10);
+                ctx.lineTo(20 * rX + 20, 20 * y + 10);
                 ctx.stroke();
 
 
@@ -68,22 +73,21 @@
             }
             curX--;
         }
-        curX =x;
-        curY =y;
-        while (curX + 1 <= 20 && data[curX + 1][curY] == data[x][y])
-        {
+        curX = x;
+        curY = y;
+        while (curX + 1 <= 20 && data[curX + 1][curY] == data[x][y]) {
             count++;
-            if(count >= 5){
-                var lX=x;
-                var rX=x;
-                while (rX + 1 <= 20 && data[rX + 1][y] == data[x][y]){
+            if (count >= 5) {
+                var lX = x;
+                var rX = x;
+                while (rX + 1 <= 20 && data[rX + 1][y] == data[x][y]) {
                     rX++;
                 }
-                while (lX - 1 >= 0 && data[lX - 1][y] == data[x][y]){
+                while (lX - 1 >= 0 && data[lX - 1][y] == data[x][y]) {
                     lX--;
                 }
-                ctx.moveTo(20*lX,20*y+10);
-                ctx.lineTo(20*rX+20,20*y+10);
+                ctx.moveTo(20 * lX, 20 * y + 10);
+                ctx.lineTo(20 * rX + 20, 20 * y + 10);
                 ctx.stroke();
 
                 win = true;
@@ -91,45 +95,43 @@
             curX++;
         }
         //cot
-        curX =x;
-        curY =y;
+        curX = x;
+        curY = y;
         count = 1;
-        while (curY - 1 >= 0 && data[curX][curY-1] == data[x][y])
-        {
+        while (curY - 1 >= 0 && data[curX][curY - 1] == data[x][y]) {
             count++;
-            if(count >= 5){
-                var lY=y;
-                var rY=y;
-                while (rY + 1 <= 20 && data[x][rY+1] == data[x][y]){
+            if (count >= 5) {
+                var lY = y;
+                var rY = y;
+                while (rY + 1 <= 20 && data[x][rY + 1] == data[x][y]) {
                     rY++;
                 }
-                while (lY - 1 >= 0 && data[x][lY-1] == data[x][y]){
+                while (lY - 1 >= 0 && data[x][lY - 1] == data[x][y]) {
                     lY--;
                 }
-                ctx.moveTo(20*x+10,20*lY);
-                ctx.lineTo(20*x+10,20*rY+20);
+                ctx.moveTo(20 * x + 10, 20 * lY);
+                ctx.lineTo(20 * x + 10, 20 * rY + 20);
                 ctx.stroke();
 
                 win = true;
             }
             curY--;
         }
-        curX =x;
-        curY =y;
-        while (curY + 1 <= 20 && data[curX][curY+1] == data[x][y])
-        {
+        curX = x;
+        curY = y;
+        while (curY + 1 <= 20 && data[curX][curY + 1] == data[x][y]) {
             count++;
-            if(count >= 5){
-                var lY=y;
-                var rY=y;
-                while (rY + 1 <= 20 && data[x][rY+1] == data[x][y]){
+            if (count >= 5) {
+                var lY = y;
+                var rY = y;
+                while (rY + 1 <= 20 && data[x][rY + 1] == data[x][y]) {
                     rY++;
                 }
-                while (lY - 1 >= 0 && data[x][lY-1] == data[x][y]){
+                while (lY - 1 >= 0 && data[x][lY - 1] == data[x][y]) {
                     lY--;
                 }
-                ctx.moveTo(20*x+10,20*lY);
-                ctx.lineTo(20*x+10,20*rY+20);
+                ctx.moveTo(20 * x + 10, 20 * lY);
+                ctx.lineTo(20 * x + 10, 20 * rY + 20);
                 ctx.stroke();
 
                 win = true;
@@ -137,27 +139,26 @@
             curY++;
         }
         //cheo chinh
-        curX =x;
-        curY =y;
+        curX = x;
+        curY = y;
         count = 1;
-        while (curX-1 >= 0 && curY-1 >=0 && data[curX-1][curY-1] == data[x][y])
-        {
+        while (curX - 1 >= 0 && curY - 1 >= 0 && data[curX - 1][curY - 1] == data[x][y]) {
             count++;
-            if(count >= 5){
-                var lX=x;
-                var rX=x;
-                var lY=y;
-                var rY=y;
-                while (rY + 1 <= 20 && rX +1<=20 && data[rX+1][rY+1] == data[x][y]){
+            if (count >= 5) {
+                var lX = x;
+                var rX = x;
+                var lY = y;
+                var rY = y;
+                while (rY + 1 <= 20 && rX + 1 <= 20 && data[rX + 1][rY + 1] == data[x][y]) {
                     rY++;
                     rX++;
                 }
-                while (lY - 1 >= 0 && lX-1>=0 && data[lX-1][lY-1] == data[x][y]){
+                while (lY - 1 >= 0 && lX - 1 >= 0 && data[lX - 1][lY - 1] == data[x][y]) {
                     lY--;
                     lX--;
                 }
-                ctx.moveTo(20*lX,20*lY);
-                ctx.lineTo(20*rX+20,20*rY+20);
+                ctx.moveTo(20 * lX, 20 * lY);
+                ctx.lineTo(20 * rX + 20, 20 * rY + 20);
                 ctx.stroke();
 
                 win = true;
@@ -165,26 +166,25 @@
             curX--;
             curY--;
         }
-        curX =x;
-        curY =y;
-        while (curY+1<=20 && curX+1<=20 && data[curX+1][curY+1] == data[x][y])
-        {
+        curX = x;
+        curY = y;
+        while (curY + 1 <= 20 && curX + 1 <= 20 && data[curX + 1][curY + 1] == data[x][y]) {
             count++;
-            if(count >= 5){
-                var lX=x;
-                var rX=x;
-                var lY=y;
-                var rY=y;
-                while (rY + 1 <= 20 && rX +1<=20 && data[rX+1][rY+1] == data[x][y]){
+            if (count >= 5) {
+                var lX = x;
+                var rX = x;
+                var lY = y;
+                var rY = y;
+                while (rY + 1 <= 20 && rX + 1 <= 20 && data[rX + 1][rY + 1] == data[x][y]) {
                     rY++;
                     rX++;
                 }
-                while (lY - 1 >= 0 && lX-1>=0 && data[lX-1][lY-1] == data[x][y]){
+                while (lY - 1 >= 0 && lX - 1 >= 0 && data[lX - 1][lY - 1] == data[x][y]) {
                     lY--;
                     lX--;
                 }
-                ctx.moveTo(20*lX,20*lY);
-                ctx.lineTo(20*rX+20,20*rY+20);
+                ctx.moveTo(20 * lX, 20 * lY);
+                ctx.lineTo(20 * rX + 20, 20 * rY + 20);
                 ctx.stroke();
 
                 win = true;
@@ -193,27 +193,26 @@
             curX++;
         }
         //cheo phu
-        curX =x;
-        curY =y;
+        curX = x;
+        curY = y;
         count = 1;
-        while (curX+1 <= 20 && curY-1 >=0 && data[curX+1][curY-1] == data[x][y])
-        {
+        while (curX + 1 <= 20 && curY - 1 >= 0 && data[curX + 1][curY - 1] == data[x][y]) {
             count++;
-            if(count >= 5){
-                var lX=x;
-                var rX=x;
-                var lY=y;
-                var rY=y;
-                while (rY -1 >= 0 && rX +1<=20 && data[rX+1][rY-1] == data[x][y]){
+            if (count >= 5) {
+                var lX = x;
+                var rX = x;
+                var lY = y;
+                var rY = y;
+                while (rY - 1 >= 0 && rX + 1 <= 20 && data[rX + 1][rY - 1] == data[x][y]) {
                     rY--;
                     rX++;
                 }
-                while (lY + 1 <= 20 && lX-1>=0 && data[lX-1][lY+1] == data[x][y]){
+                while (lY + 1 <= 20 && lX - 1 >= 0 && data[lX - 1][lY + 1] == data[x][y]) {
                     lY++;
                     lX--;
                 }
-                ctx.moveTo(20*rX+20,20*rY);
-                ctx.lineTo(20*lX,20*lY+20);
+                ctx.moveTo(20 * rX + 20, 20 * rY);
+                ctx.lineTo(20 * lX, 20 * lY + 20);
                 ctx.stroke();
 
 
@@ -222,26 +221,25 @@
             curX++;
             curY--;
         }
-        curX =x;
-        curY =y;
-        while (curY+1<=20 && curX-1>=0 && data[curX-1][curY+1] == data[x][y])
-        {
+        curX = x;
+        curY = y;
+        while (curY + 1 <= 20 && curX - 1 >= 0 && data[curX - 1][curY + 1] == data[x][y]) {
             count++;
-            if(count >= 5){
-                var lX=x;
-                var rX=x;
-                var lY=y;
-                var rY=y;
-                while (rY -1 >= 0 && rX +1<=20 && data[rX+1][rY-1] == data[x][y]){
+            if (count >= 5) {
+                var lX = x;
+                var rX = x;
+                var lY = y;
+                var rY = y;
+                while (rY - 1 >= 0 && rX + 1 <= 20 && data[rX + 1][rY - 1] == data[x][y]) {
                     rY--;
                     rX++;
                 }
-                while (lY + 1 <= 20 && lX-1>=0 && data[lX-1][lY+1] == data[x][y]){
+                while (lY + 1 <= 20 && lX - 1 >= 0 && data[lX - 1][lY + 1] == data[x][y]) {
                     lY++;
                     lX--;
                 }
-                ctx.moveTo(20*rX+20,20*rY);
-                ctx.lineTo(20*lX,20*lY+20);
+                ctx.moveTo(20 * rX + 20, 20 * rY);
+                ctx.lineTo(20 * lX, 20 * lY + 20);
                 ctx.stroke();
 
                 win = true;
@@ -250,71 +248,78 @@
             curX--;
         }
         if (win == true)
-        alert("nguoi choi "+data[x][y]+" thang");
+            alert("nguoi choi " + data[x][y] + " thang");
     }
 
     // implement draw grid line here
-    function drawGrid(){
-        for(let i =0; i<400; i+=20){
+    function drawGrid() {
+        for (let i = 0; i < 400; i += 20) {
             ctx.strokeStyle = color;
-            ctx.moveTo(20+i,0);
-            ctx.lineTo(20+i,400);
+            ctx.moveTo(20 + i, 0);
+            ctx.lineTo(20 + i, 400);
             ctx.stroke();
         }
-        for(let i =0; i<400; i+=20){
+        for (let i = 0; i < 400; i += 20) {
             ctx.strokeStyle = color;
-            ctx.moveTo(0,20+i);
-            ctx.lineTo(400,20+i);
+            ctx.moveTo(0, 20 + i);
+            ctx.lineTo(400, 20 + i);
             ctx.stroke();
         }
     }
-
+    var luotdi =true;
+    socket.on('data play', function (pdata) {
+        console.log(pdata);
+        if (win == false) {
+            if ( luotdi==true ) {
+                //turnX(mouseX, mouseY);
+                drawX(pdata.x,pdata.y);
+                luotdi=false;
+            } else if(luotdi==false) {
+                //turnO(mouseX, mouseY);
+                drawO(pdata.x,pdata.y);
+                luotdi=true;
+            }
+        }
+    });
     // process mouse click
     function onClick(e) {
         mouseX = e.pageX - canvas.offsetLeft;
         mouseY = e.pageY - canvas.offsetTop;
-        if(win == false){
-            if (step % 2){
-                turnX(mouseX, mouseY);
-                step++;
-            }
-            else{
-                turnO(mouseX, mouseY);
-                step++;
-            }
-
+        var posX=Math.floor( mouseX / CELL_SIZE );
+        var posY=Math.floor( mouseY / CELL_SIZE );
+        if (data[posX][posY]==0){
+            socket.emit('data play', {
+                x: posX,
+                y: posY,
+                player: '<%= name%>',
+                turn: luotdi
+            });
         }
+
     }
 
-    function turnX(mouseX, mouseY){
-        drawX(mouseX, mouseY);
-    }
-
-    function turnO(mouseX, mouseY){
-        drawO(mouseX, mouseY);
-    }
 
     function drawX(x, y) {
-        var posX=Math.floor( x / CELL_SIZE );
-        var posY=Math.floor( y / CELL_SIZE );
-        if (canvas.getContext && data[posX][posY]==0){
-            let pos = convertToCellPos(x, y);
+
+        if (canvas.getContext ){
+
 
             ctx.beginPath();
-            let diff = CELL_SIZE / 2 - GAP;
 
-            ctx.moveTo(pos[0] - diff, pos[1] - diff);
-            ctx.lineTo(pos[0] + diff, pos[1] + diff);
+
+            ctx.moveTo(x*CELL_SIZE, y*CELL_SIZE);
+            ctx.lineTo((x+1)*CELL_SIZE, (y+1)*CELL_SIZE);
             ctx.strokeStyle = colorX;
             ctx.stroke();
 
-            ctx.moveTo(pos[0] + diff, pos[1] - diff);
-            ctx.lineTo(pos[0] - diff, pos[1] + diff);
+            ctx.moveTo((x+1)*CELL_SIZE, y*CELL_SIZE);
+            ctx.lineTo(x*CELL_SIZE, (y+1)*CELL_SIZE);
 
             ctx.strokeStyle = colorX;
             ctx.stroke();
-            data[posX][posY]=1;
-            check(data,posX,posY);
+            data[x][y]=1;
+            step++;
+            check(data,x,y);
 
         }
 
@@ -323,28 +328,24 @@
 
     function drawO(x, y)
     {
-        var posX=Math.floor( x / CELL_SIZE );
-        var posY=Math.floor( y / CELL_SIZE );
-        if (canvas.getContext && data[posX][posY]==0)
-        {
-            let pos = convertToCellPos(x, y);
 
+        if (canvas.getContext )
+        {
             let radius = CELL_SIZE / 2 - GAP;
             ctx.beginPath();
-            ctx.arc(pos[0], pos[1], radius, 0, 2 * Math.PI, false);
+            ctx.arc(x*CELL_SIZE + CELL_SIZE / 2, y*CELL_SIZE + CELL_SIZE / 2, radius, 0, 2 * Math.PI, false);
             ctx.lineWidth = 1;
 
             ctx.strokeStyle = colorO;
             ctx.stroke();
 
-            data[posX][posY]=2;
-            check(data,posX,posY);
+            data[x][y]=2;
+            step++;
+            check(data,x,y);
         }
     }
 
-    function convertToCellPos(x, y){
-        return new Array(Math.floor( x / CELL_SIZE ) * CELL_SIZE + CELL_SIZE / 2, Math.floor( y / CELL_SIZE ) * CELL_SIZE + CELL_SIZE / 2);
-    }
+
 
 </script>
 

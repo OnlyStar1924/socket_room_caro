@@ -2,49 +2,36 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Login Form </title>
     <style>
-        .login-form {
-            width: 300px;
-            margin: 0 auto;
-            font-family: Tahoma, Geneva, sans-serif;
-        }
-        .login-form h1 {
-            text-align: center;
-            color: #4d4d4d;
-            font-size: 24px;
-            padding: 20px 0 20px 0;
-        }
-        .login-form input[type="password"],
-        .login-form input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid #dddddd;
-            margin-bottom: 15px;
-            box-sizing:border-box;
-        }
-        .login-form input[type="submit"] {
-            width: 100%;
-            padding: 15px;
-            background-color: #535b63;
-            border: 0;
-            box-sizing: border-box;
-            cursor: pointer;
-            font-weight: bold;
-            color: #ffffff;
-        }
+        #messages { list-style-type: none; margin: 0; padding: 0; }
+        #messages li { padding: 5px 10px; }
+        #messages li:nth-child(odd) { background: #eee; }
     </style>
 </head>
 <body>
 <div class="login-form">
     <h1>Result Form</h1>
-    <form action="" method="">
-        <input type="text" name="id" value="<%= name[0] %>" readonly>
-        <input type="text" name="username" value="<%= name[1] %>" readonly>
-        <input type="text" name="phone" value="<%= name[2] %>" readonly >
-        <input type="text" name="address" value="<%= name[3] %>" readonly>
+    <ul id="resuilt"></ul>
 
-    </form>
+
+    <ul>
+        <% for(var i=0; i<name.length; i++) {%>
+            <li><%= name[i].id %></li>
+            <li><%= name[i].name %></li>
+            <br>
+        <% } %>
+    </ul>
+
+
+
+<!--    <form action="" method="">-->
+<!--        <input type="text" name="id" value="<%= name[0].id %>" readonly>-->
+<!--        <input type="text" name="username" value="<%= name[0].name %>" readonly>-->
+<!--        <input type="text" name="phone" value="<%= name[0].phone %>" readonly >-->
+<!--        <input type="text" name="address" value="<%= name[0].address %>" readonly>-->
+
+<!--    </form>-->
 </div>
+
 </body>
 </html>

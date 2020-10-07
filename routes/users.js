@@ -108,11 +108,17 @@ router.get('/game', function(req, res, next) {
 
 router.post('/find', function(req, res, next) {
   if(req.session.loggedin){
-    connection.query('SELECT * FROM users WHERE name = ?', req.body.text_find , function(error, results, fields) {
-      if (error) throw error;
-      console.log(results);
-      res.render('find',{name: [results[0].id, results[0].name, results[0].phone, results[0].address]});
-    });
+    if (req.body.text_find.length >2){
+      connection.query('SELECT * FROM users WHERE name LIKE ?', '%' + req.body.text_find + '%', function(error, results, fields) {
+        if (error) throw error;
+        //console.log(results);
+        res.render('find',{name: results});
+      });
+    }else{
+      res.send('please enter at least 3 character');
+      res.end();
+    }
+
   }else {
     res.render('login');
   }
