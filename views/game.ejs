@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>game play</title>
+    <link rel='stylesheet' href='/stylesheets/game.css'/>
     <style>
         canvas {
             border: 1px solid black;
@@ -10,15 +11,28 @@
     </style>
 </head>
 <body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
 <div class="half">
     <canvas id="myCanvas" width="400" height="400"></canvas>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<div id="lobby">
+    <div class="content">
+        <ul id="chat_content"></ul>
+        <ul id="chat_online_list"></ul>
+    </div>
+    <ul class="input">
+        <li><input id="chat_message" type="text" placeholder="Nội dung chat"/></li>
+        <li><input id="chat_send" type="button" value="Gửi"></li>
+    </ul>
+</div>
 
 <script>
-    var socket = io();
+    const socket = io({
+        transports: ['websocket']
+    });
 
     var canvas = document.getElementById('myCanvas');
     var ctx = canvas.getContext("2d");
@@ -266,85 +280,163 @@
             ctx.stroke();
         }
     }
+
+    // socket.on('chat', (msg) => {
+    //     console.log('chat'); // true
+    //     console.log(msg); // true
+    //     chatContent.insertAdjacentHTML('beforeend', `<li><strong>${onlineUserObj[msg.senderId].username}:</strong> ${msg.content}</li>`)
+    //
+    // });
+   //${onlineUserObj[msg.senderId].username}
+    var dd;
     var luotdi =true;
     socket.on('data play', function (pdata) {
-        console.log(pdata);
+        console.log(pdata.senderId);
+        console.log(pdata.content);
+
         if (win == false) {
-            if ( luotdi==true ) {
-                //turnX(mouseX, mouseY);
-                drawX(pdata.x,pdata.y);
+            if (  luotdi == true ) {
+                drawX(pdata.content.x,pdata.content.y);
+                dd=false;
                 luotdi=false;
-            } else if(luotdi==false) {
-                //turnO(mouseX, mouseY);
-                drawO(pdata.x,pdata.y);
+            } else  {
+                drawO(pdata.content.x,pdata.content.y);
+                dd=false;
                 luotdi=true;
             }
         }
     });
     // process mouse click
+
     function onClick(e) {
         mouseX = e.pageX - canvas.offsetLeft;
         mouseY = e.pageY - canvas.offsetTop;
         var posX=Math.floor( mouseX / CELL_SIZE );
         var posY=Math.floor( mouseY / CELL_SIZE );
-        if (data[posX][posY]==0){
+        if (data[posX][posY]==0 ){
+            dd=true;
             socket.emit('data play', {
                 x: posX,
                 y: posY,
-                player: '<%= name%>',
-                turn: luotdi
+                turn: luotdi,
+                status: dd
             });
+
+        }
+    }
+    /*
+    function onClick(e) {
+        mouseX = e.pageX - canvas.offsetLeft;
+        mouseY = e.pageY - canvas.offsetTop;
+        var posX = Math.floor(mouseX / CELL_SIZE);
+        var posY = Math.floor(mouseY / CELL_SIZE);
+
+        if (win == false && data[posX][posY] == 0) {
+            if (step % 2)
+                drawX(posX, posY);
+            else
+                drawO(posX, posY);
         }
 
     }
-
+    */
 
     function drawX(x, y) {
 
-        if (canvas.getContext ){
-
+        if (canvas.getContext) {
 
             ctx.beginPath();
-
-
-            ctx.moveTo(x*CELL_SIZE, y*CELL_SIZE);
-            ctx.lineTo((x+1)*CELL_SIZE, (y+1)*CELL_SIZE);
+            ctx.moveTo(x * CELL_SIZE, y * CELL_SIZE);
+            ctx.lineTo((x + 1) * CELL_SIZE, (y + 1) * CELL_SIZE);
             ctx.strokeStyle = colorX;
             ctx.stroke();
 
-            ctx.moveTo((x+1)*CELL_SIZE, y*CELL_SIZE);
-            ctx.lineTo(x*CELL_SIZE, (y+1)*CELL_SIZE);
+            ctx.moveTo((x + 1) * CELL_SIZE, y * CELL_SIZE);
+            ctx.lineTo(x * CELL_SIZE, (y + 1) * CELL_SIZE);
 
             ctx.strokeStyle = colorX;
             ctx.stroke();
-            data[x][y]=1;
-            step++;
-            check(data,x,y);
+            data[x][y] = 1;
 
+            check(data, x, y);
         }
-
     }
 
 
-    function drawO(x, y)
-    {
+    function drawO(x, y) {
 
-        if (canvas.getContext )
-        {
+        if (canvas.getContext) {
             let radius = CELL_SIZE / 2 - GAP;
             ctx.beginPath();
-            ctx.arc(x*CELL_SIZE + CELL_SIZE / 2, y*CELL_SIZE + CELL_SIZE / 2, radius, 0, 2 * Math.PI, false);
+            ctx.arc(x * CELL_SIZE + CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2, radius, 0, 2 * Math.PI, false);
             ctx.lineWidth = 1;
 
             ctx.strokeStyle = colorO;
             ctx.stroke();
 
-            data[x][y]=2;
+            data[x][y] = 2;
             step++;
-            check(data,x,y);
+            check(data, x, y);
         }
     }
 
+    //xu ly socket
+
+    window.addEventListener('load', function () {
+        var onlineUserList = document.getElementById('chat_online_list');
+        var chatContent = document.getElementById('chat_content');
+        var chatMessage = document.getElementById('chat_message');
+        var chatSendBtn = document.getElementById('chat_send');
+        var onlineUserObj;
+        console.log('All assets are loaded');
+
+
+        socket.on('connect', () => {
+            console.log(socket.connected);
+        });
+
+        socket.on('disconnect', () => {
+            window.location.href = "/";
+        });
+
+        socket.on('online_user_list', (msg) => {
+            console.log('online_user_list');
+            console.log(msg); // true
+            onlineUserObj = msg;
+            for (var key in msg) {
+                onlineUserList.insertAdjacentHTML('beforeend', `<li id="${msg[key].socketId}">${msg[key].username} - ${msg[key].socketId}</li>`)
+            }
+        });
+        socket.on('user_online', (msg) => {
+            console.log('user_online'); // true
+            console.log(msg); // true
+            if (onlineUserObj.hasOwnProperty(msg.socketId)) {
+                document.getElementById(msg.socketId).outerHTML = "";
+            }
+            onlineUserObj[msg.socketId] = msg;
+            onlineUserList.insertAdjacentHTML('beforeend', `<li id="${msg.socketId}">${msg.username} - ${msg.socketId}</li>`)
+        });
+        socket.on('user_offline', (msg) => {
+            console.log('user_offline'); // true
+            console.log(msg); // true
+            if (!!onlineUserObj && onlineUserObj.hasOwnProperty(msg.socketId)) {
+                delete onlineUserObj[msg.socketId];
+                document.getElementById(msg.socketId).outerHTML = "";
+            }
+        });
+        socket.on('chat', (msg) => {
+            console.log('chat'); // true
+            console.log(msg); // true
+            chatContent.insertAdjacentHTML('beforeend', `<li><strong>${onlineUserObj[msg.senderId].username}:</strong> ${msg.content}</li>`)
+
+        });
+        chatSendBtn.addEventListener("click", () => {
+            if (chatMessage.value.length > 0) {
+                socket.emit("sent_msg", chatMessage.value);
+                chatMessage.value = "";
+            }
+        })
+    })
 
 
 </script>

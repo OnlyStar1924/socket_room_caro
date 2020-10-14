@@ -1,40 +1,177 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Socket.IO chat</title>
+    <meta charset="UTF-8">
+    <title>game play</title>
+    <link rel='stylesheet' href='/stylesheets/game.css'/>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font: 13px Helvetica, Arial; }
-        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-        form input { border: 0; padding: 10px; width: 90%; margin-right: 0.5%; }
-        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-        #messages { list-style-type: none; margin: 0; padding: 0; }
-        #messages li { padding: 5px 10px; }
-        #messages li:nth-child(odd) { background: #eee; }
+        canvas {
+            border: 1px solid black;
+        }
     </style>
 </head>
 <body>
 
-<ul id="messages"></ul>
-<form action="">
-    <input id="m" autocomplete="off" /><button>Send</button>
-</form>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script>
-    $(function () {
-        var socket = io();
-        $('form').submit(function(e){
-            e.preventDefault(); // prevents page reloading
-            socket.emit('chat message','<%= name %>' + ': ' + $('#m').val());
-            $('#m').val('');
-            return false;
-        });
-        socket.on('chat message', function(msg){
-            //$('#messages').append($('<li>').text('<%= name %>' + ': ' + msg));
-            $('#messages').append($('<li>').text(msg));
-        });
-    });
-</script>
+
+
+<div id="lobby">
+    <div class="content">
+        <ul id="chat_content"></ul>
+        <ul id="chat_online_list"></ul>
+    </div>
+    <ul class="input">
+        <li><input id="chat_message" type="text" placeholder="Nội dung chat"/></li>
+        <li><input id="chat_send" type="button" value="Gửi"></li>
+    </ul>
+</div>
 </body>
+<script>
+    window.addEventListener('load', function () {
+        var onlineUserList = document.getElementById('chat_online_list');
+        var chatContent = document.getElementById('chat_content');
+        var chatMessage = document.getElementById('chat_message');
+        var chatSendBtn = document.getElementById('chat_send');
+        var onlineUserObj;
+        console.log('All assets are loaded');
+
+        const socket = io({
+            transports: ['websocket']
+        });
+
+        socket.on('connect', () => {
+            console.log(socket.connected);
+        });
+
+
+        socket.on('disconnect', () => {
+            window.location.href = "/";
+        });
+
+        socket.on('online_user_list', (msg) => {
+            console.log('online_user_list');
+            console.log(msg); // true
+            onlineUserObj = msg;
+            for (var key in msg) {
+                onlineUserList.insertAdjacentHTML('beforeend', `<li id="${msg[key].socketId}">${msg[key].username} - ${msg[key].socketId}</li>`)
+            }
+        });
+        socket.on('user_online', (msg) => {
+            console.log('user_online'); // true
+            console.log(msg); // true
+            if (onlineUserObj.hasOwnProperty(msg.socketId)) {
+                document.getElementById(msg.socketId).outerHTML = "";
+            }
+            onlineUserObj[msg.socketId] = msg;
+            onlineUserList.insertAdjacentHTML('beforeend', `<li id="${msg.socketId}">${msg.username} - ${msg.socketId}</li>`)
+        });
+        socket.on('user_offline', (msg) => {
+            console.log('user_offline'); // true
+            console.log(msg); // true
+            if (!!onlineUserObj && onlineUserObj.hasOwnProperty(msg.socketId)) {
+                delete onlineUserObj[msg.socketId];
+                document.getElementById(msg.socketId).outerHTML = "";
+            }
+        });
+        socket.on('chat', (msg) => {
+            //console.log('chat'); // true
+            //console.log(msg); // true
+            chatContent.insertAdjacentHTML('beforeend', `<li><strong>${onlineUserObj[msg.senderId].username}:</strong> ${msg.content}</li>`)
+
+        });
+        chatSendBtn.addEventListener("click", () => {
+            if (chatMessage.value.length > 0) {
+                socket.emit("sent_msg", chatMessage.value);
+                chatMessage.value="";
+            }
+        })
+    })
+</script>
+
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<!doctype html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>Socket.IO chat</title>-->
+<!--    <style>-->
+<!--        * { margin: 0; padding: 0; box-sizing: border-box; }-->
+<!--        body { font: 13px Helvetica, Arial; }-->
+<!--        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }-->
+<!--        form input { border: 0; padding: 10px; width: 90%; margin-right: 0.5%; }-->
+<!--        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }-->
+<!--        #messages { list-style-type: none; margin: 0; padding: 0; }-->
+<!--        #messages li { padding: 5px 10px; }-->
+<!--        #messages li:nth-child(odd) { background: #eee; }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<ul id="messages"></ul>-->
+<!--<form action="">-->
+<!--    <input id="m" autocomplete="off" /><button>Send</button>-->
+
+
+
+<!--</form>-->
+<!--<script src="/socket.io/socket.io.js"></script>-->
+<!--<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>-->
+<!--<script>-->
+<!--    $(function () {-->
+<!--        var socket = io();-->
+<!--        $('form').submit(function(e){-->
+<!--            e.preventDefault(); // prevents page reloading-->
+<!--            //socket.emit('chat message','<%= name %>' + ': ' + $('#m').val());-->
+<!--            //$('#m').val('');-->
+
+<!--            if ($('#m').val().length > 0) {-->
+<!--                socket.emit("sent_msg", $('#m').val());-->
+<!--                $('#m').val('');-->
+<!--            }-->
+<!--            return false;-->
+<!--        });-->
+
+<!--        // socket.on('chat message', function(msg){-->
+<!--        //     $('#messages').append($('<li>').text(msg));-->
+<!--        // });-->
+
+<!--        socket.on('chat', (msg) => {-->
+
+<!--            //chatContent.insertAdjacentHTML('beforeend', `<li><strong>${onlineUserObj[msg.senderId].username}:</strong> ${msg.content}</li>`)-->
+<!--            $('#messages').append($('<li>').text(msg));-->
+<!--        });-->
+
+<!--    });-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->

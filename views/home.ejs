@@ -6,12 +6,10 @@
 
 </head>
 <body>
-
+<script src="/socket.io/socket.io.js"></script>
 
     <h1>Home Page</h1>
     <h2> Your name is <%= name %> </h2>
-
-
 
     <form action="/users/logout" method="GET">
         <button>Logout</button>
@@ -32,11 +30,29 @@
         <button>Find</button>
     </form>
 
-
-
-
+    </form><form action="/users/room1" method="GET">
+        <button>Enter Room 1</button>
+    </form>
 
 
 
 </body>
+
+<!--<script>-->
+<!--    window.addEventListener('load', function () {-->
+
+<!--        const socket = io({-->
+<!--            transports: ['websocket']-->
+<!--        });-->
+
+<!--        socket.on('connect', () => {-->
+<!--            console.log(socket.connected);-->
+<!--        });-->
+
+<!--        socket.on('disconnect', () => {-->
+<!--            window.location.href = "/";-->
+<!--        });-->
+<!--    });-->
+<!--</script>-->
+
 </html>

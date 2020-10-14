@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>room 1</title>
+    <link rel='stylesheet' href='/stylesheets/game.css'/>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<script src="/socket.io/socket.io.js"></script>
+<body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+<div class="half">
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+</div>
+
+<div id="lobby">
+    <div class="content">
+        <ul id="chat_content"></ul>
+        <ul id="chat_online_list"></ul>
+    </div>
+    <ul class="input">
+        <li><input id="chat_message" type="text" placeholder="Nội dung chat"/></li>
+        <li><input id="chat_send" type="button" value="Gửi"></li>
+    </ul>
+</div>
+</body>
+
+
+<script>
+
+    const socket = io({
+        transports: ['websocket']
+    });
+
+    var canvas = document.getElementById('myCanvas');
+    var ctx = canvas.getContext("2d");
+
+    var mouseX, mouseY;
+    var dem =0;
+
+    const CELL_SIZE = 20;
+    const GAP = 2;
+
+    const colorX = '#ff0000';
+    const colorO = '#0066ff';
+    const color = '#000000';
+
+    var data = new Array(20);
+    var turn =1;
+    var end = false;
+    //var start;
+
+    canvas.addEventListener("click", onClick, false);
+
+
+    drawGrid();
+
+    function drawGrid() {
+        for (let i = 0; i < 400; i += 20) {
+            ctx.strokeStyle = color;
+            ctx.moveTo(20 + i, 0);
+            ctx.lineTo(20 + i, 400);
+            ctx.stroke();
+        }
+        for (let i = 0; i < 400; i += 20) {
+            ctx.strokeStyle = color;
+            ctx.moveTo(0, 20 + i);
+            ctx.lineTo(400, 20 + i);
+            ctx.stroke();
+        }
+    }
+    socket.on('matrix', (msg) => {
+        for (var i =0; i< msg.length; i++){
+            for (var j = 0; j< msg.length; j++){
+                if (msg[i][j]==1) {
+                    drawX(i, j);
+                } else if (msg[i][j]==2){
+                    drawO(i, j);
+                }
+            }
+        }
+
+    });
+
+
+    socket.on('data_play', function (pdata) {
+
+
+        if (turn % 2) {
+            drawX(pdata.content.x , pdata.content.y);
+        } else {
+            drawO(pdata.content.x, pdata.content.y);
+        }
+        turn++;
+
+
+        //if (canvas.getContext) {
+            if (pdata.line[0] != null && pdata.line[0][0] != null){
+
+                // for (var i = pdata.line[1][0]; i<= pdata.line[0][0] +1; i++){
+                //     for (var j = pdata.line[0][1]; j<= pdata.line[1][1] +1; j++){
+                //         console.log(i);
+                //         console.log(j);
+                //         //ctx.beginPath();
+                //         //ctx.strokeStyle = colorX;
+                //         drawO(pdata.line[0][0] + i, pdata.line[0][1] + j);
+                //         //ctx.stroke();
+                //     }
+                // }
+
+                drawO(pdata.line[0][0],pdata.line[0][1]);
+                drawO(pdata.line[1][0],pdata.line[1][1]);
+                drawX(pdata.line[0][0],pdata.line[0][1]);
+                drawX(pdata.line[1][0],pdata.line[1][1]);
+
+             }
+        //}
+
+
+        if (pdata.status == true) {
+            end = true;
+            alert("nguoi choi " + pdata.senderId + " thang");
+        }
+    });
+
+    // process mouse click
+    function onClick(e) {
+        if (end == false ) {
+            mouseX = e.pageX - canvas.offsetLeft;
+            mouseY = e.pageY - canvas.offsetTop;
+            var posX = Math.floor(mouseX / CELL_SIZE);
+            var posY = Math.floor(mouseY / CELL_SIZE);
+
+            socket.emit('data_play', {
+                x: posX,
+                y: posY,
+
+            });
+
+
+        }
+
+    }
+
+    function drawX(x, y) {
+
+        if (canvas.getContext) {
+
+            ctx.beginPath();
+            ctx.moveTo(x * CELL_SIZE, y * CELL_SIZE);
+            ctx.lineTo((x + 1) * CELL_SIZE, (y + 1) * CELL_SIZE);
+            ctx.strokeStyle = colorX;
+            ctx.stroke();
+
+            ctx.moveTo((x + 1) * CELL_SIZE, y * CELL_SIZE);
+            ctx.lineTo(x * CELL_SIZE, (y + 1) * CELL_SIZE);
+
+            ctx.strokeStyle = colorX;
+            ctx.stroke();
+            //data[x][y] = 1;
+
+            //check(data, x, y);
+        }
+    }
+
+    function drawO(x, y) {
+
+        if (canvas.getContext) {
+            let radius = CELL_SIZE / 2 - GAP;
+            ctx.beginPath();
+            ctx.arc(x * CELL_SIZE + CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2, radius, 0, 2 * Math.PI, false);
+            ctx.lineWidth = 1;
+
+            ctx.strokeStyle = colorO;
+            ctx.stroke();
+
+            //data[x][y] = 2;
+
+            //check(data, x, y);
+        }
+    }
+
+    //xu ly socket
+    window.addEventListener('load', function () {
+        var onlineUserList = document.getElementById('chat_online_list');
+        var chatContent = document.getElementById('chat_content');
+        var chatMessage = document.getElementById('chat_message');
+        var chatSendBtn = document.getElementById('chat_send');
+        var onlineUserObj;
+
+        var room = "room1";
+
+
+        socket.on('connect', function () {
+            // Connected, let's sign-up for to receive messages for this room
+            socket.emit('room', room);
+        });
+
+        socket.on('disconnect', () => {
+            window.location.href = "/users";
+        });
+
+        socket.on('user_being_kick', function (pdata) {
+            //console.log(pdata);
+            if (pdata == socket.id) {
+                window.location.href = "/users";
+            }
+        })
+
+        socket.on('chat', (msg) => {
+            chatContent.insertAdjacentHTML('beforeend', `<li><strong>${onlineUserObj[msg.senderId].username}:</strong> ${msg.content}</li>`)
+
+        });
+        chatSendBtn.addEventListener("click", () => {
+            if (chatMessage.value.length > 0) {
+                socket.emit("sent_msg", chatMessage.value);
+                chatMessage.value = "";
+            }
+        })
+
+
+        socket.on('message', function (data) {
+            // console.log(data[socket.id]);
+            //
+            // if (data[socket.id].role == 1) {
+            //     console.log("day la thang chu");
+            // }
+            // if (data[socket.id].role == 2) {
+            //     console.log("day la thang khach");
+            // }
+            //tk vua log vao hien cac tk da trong p roi
+            socket.on('online_user_list_room', (msg) => {
+
+
+
+                onlineUserObj = msg;
+                for (var key in msg) {
+                    //dem++;
+                    onlineUserList.insertAdjacentHTML('beforeend', `<li id="${msg[key].socketId}">${msg[key].username} - ${msg[key].socketId}</li>`);
+                }
+
+            });
+
+            // hien thang vua log vao len
+            socket.on('user_online_room', (msg) => {
+
+                if (onlineUserObj.hasOwnProperty(msg.socketId)) {
+                    document.getElementById(msg.socketId).outerHTML = "";
+                }
+                onlineUserObj[msg.socketId] = msg;
+                if (data[socket.id].role == 1) {
+                    onlineUserList.insertAdjacentHTML('beforeend', `<li id="${msg.socketId}">${msg.username} - ${msg.socketId} <button id="msg.socketId"> kich </button> </li>`)
+
+                } else {
+                    onlineUserList.insertAdjacentHTML('beforeend', `<li id="${msg.socketId}">${msg.username} - ${msg.socketId} </li>`);
+                }
+
+                document.getElementById(msg.socketId).addEventListener("click", () => {
+                    //console.log("kich 1 tk " + msg.socketId);
+                    if (!!onlineUserObj && onlineUserObj.hasOwnProperty(msg.socketId)) {
+
+                        socket.emit('user_being_kick', msg.socketId);
+
+                    }
+                });
+            });
+
+            //xoa tk vua out ra
+            socket.on('user_leave_room', (msg) => {
+                if (!!onlineUserObj && onlineUserObj.hasOwnProperty(msg.socketId)) {
+                    delete onlineUserObj[msg.socketId];
+                    document.getElementById(msg.socketId).outerHTML = "";
+                }
+            });
+        });
+    })
+
+</script>
+
+
+</html>
