@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io({
+            transports: ['websocket']
+        });
+
+        socket.on('connect', () => {
+            console.log(socket.id);
+        });
+        socket.emit('create_room');
+        socket.on('create_room', function (room) {
+            console.log(room);
+
+            socket.emit('join_room', room);
+        });
+
+        socket.on('created_room', function (room) {
+            console.log(room.key);
+            //onlineRoomList.insertAdjacentHTML('beforeend', `<li id=""> ${room} </li>`);
+        });
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>

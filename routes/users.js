@@ -134,5 +134,15 @@ router.get('/room1', function (req, res, next) {
     }
 });
 
+router.get('/room', function (req, res, next) {
+
+    if (req.session.user) {
+        res.render('room', {name: req.session.username});
+    } else {
+        res.render('login');
+    }
+});
+
+
 
 module.exports = router;

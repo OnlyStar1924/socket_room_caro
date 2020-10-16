@@ -10,13 +10,16 @@
         }
     </style>
 </head>
-<script src="/socket.io/socket.io.js"></script>
+
 <body>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-
+<script src="/socket.io/socket.io.js"></script>
 <div class="half">
     <canvas id="myCanvas" width="400" height="400"></canvas>
+    <ul id="restart_button"></ul>
 </div>
+<button id="restart" hidden="true">restart</button>
+
 
 <div id="lobby">
     <div class="content">
@@ -38,6 +41,7 @@
     });
 
     var canvas = document.getElementById('myCanvas');
+    var btnRestart = document.getElementById('restart');
     var ctx = canvas.getContext("2d");
 
     var mouseX, mouseY;
@@ -53,21 +57,39 @@
     var data = new Array(20);
     var turn =1;
     var end = false;
-    //var start;
+    var start;
 
     canvas.addEventListener("click", onClick, false);
+    btnRestart.addEventListener("click", onClickBtn, false);
+
+    function onClickBtn(){
+        if (end == true){
+            socket.emit('restart');
+
+        }
+    }
+
+    socket.on('restart', () => {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        turn =1;
+        end = false;
+        drawGrid();
+        alert("choi lai");
+    });
 
 
     drawGrid();
 
     function drawGrid() {
         for (let i = 0; i < 400; i += 20) {
+            ctx.beginPath();
             ctx.strokeStyle = color;
             ctx.moveTo(20 + i, 0);
             ctx.lineTo(20 + i, 400);
             ctx.stroke();
         }
         for (let i = 0; i < 400; i += 20) {
+            ctx.beginPath();
             ctx.strokeStyle = color;
             ctx.moveTo(0, 20 + i);
             ctx.lineTo(400, 20 + i);
@@ -142,7 +164,6 @@
 
             });
 
-
         }
 
     }
@@ -191,13 +212,19 @@
         var chatContent = document.getElementById('chat_content');
         var chatMessage = document.getElementById('chat_message');
         var chatSendBtn = document.getElementById('chat_send');
+        var restartBtn = document.getElementById('restart');
         var onlineUserObj;
 
-        var room = "room1";
+        var room = "roomDefault";
+
+
 
 
         socket.on('connect', function () {
             // Connected, let's sign-up for to receive messages for this room
+            socket.on('room', function (id) {
+                room = id;
+            });
             socket.emit('room', room);
         });
 
@@ -223,6 +250,7 @@
             }
         })
 
+        //socket.emit('room', room);
 
         socket.on('message', function (data) {
             // console.log(data[socket.id]);
@@ -233,14 +261,16 @@
             // if (data[socket.id].role == 2) {
             //     console.log("day la thang khach");
             // }
+
+            if (data[socket.id].role == 1) {
+                restartBtn.hidden=false;
+            }
+
             //tk vua log vao hien cac tk da trong p roi
             socket.on('online_user_list_room', (msg) => {
 
-
-
                 onlineUserObj = msg;
                 for (var key in msg) {
-                    //dem++;
                     onlineUserList.insertAdjacentHTML('beforeend', `<li id="${msg[key].socketId}">${msg[key].username} - ${msg[key].socketId}</li>`);
                 }
 

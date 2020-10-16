@@ -4,6 +4,8 @@ var io;
 var onlineUser = {};
 var joinUser = {};
 
+var onlineRoom = {};
+
 var master;
 var cli;
 var data = new Array(20);
@@ -28,6 +30,7 @@ module.exports = {
         io.on('connect', (socket) => {
             // console.log(socket.id);
             // console.log(io.sockets.connected);
+
             const session = socket.request.session;
             if (!session.user) {
                 return socket.disconnect(true);
@@ -67,9 +70,32 @@ module.exports = {
                 io.sockets.emit('data play', {senderId: socket.id, content: pdata});
             });
 
+            socket.emit('list_room',onlineRoom);
 
             //room xu ly trong nay
+            socket.on('create_room', function () {
+                var createdRoom = {...{name: "room" + socket.id}};
+                onlineRoom[socket.id]= createdRoom;
+                console.log(onlineRoom);
+                socket.emit('create_room',"room" + socket.id);
+
+                socket.broadcast.emit('created_room',createdRoom);
+
+
+
+            });
+
+            socket.on('join_room', function (room) {
+                console.log(room);
+                socket.join(room);
+
+            });
+
+
             socket.on('room', function (room) {
+                //onlineRoom[socket.id]=room;
+                //console.log(onlineRoom);
+
                 socket.join(room);
 
                 var role = 3;
@@ -110,10 +136,10 @@ module.exports = {
                         }
                         init();
 
-                        // for (var key in joinUser){
-                        //     //console.log("kich het tat ca");
-                        //     io.sockets.emit('user_being_kick', key);
-                        // }
+                        for (var key in joinUser){
+                            //console.log("kich het tat ca");
+                            io.sockets.emit('user_being_kick', key);
+                        }
 
                     }
                     if (logoutUser.role == 2) {
@@ -158,9 +184,17 @@ module.exports = {
 
                 });
 
+                socket.on('restart', () => {
+                    for (var i = 0; i < arrWin.length; i++) {
+                        arrWin[i] = new Array(null, null);
+                    }
+                    init();
+                    io.sockets.emit('restart');
 
-            });
+                });
+           });
         });
+
 
         return io;
     }

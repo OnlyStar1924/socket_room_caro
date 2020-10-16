@@ -3,56 +3,79 @@
 <head>
     <meta charset="utf-8">
     <title>Home page</title>
-
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 <script src="/socket.io/socket.io.js"></script>
 
-    <h1>Home Page</h1>
-    <h2> Your name is <%= name %> </h2>
+<h1>Home Page</h1>
+<h2> Your name is <%= name %> </h2>
 
-    <form action="/users/logout" method="GET">
-        <button>Logout</button>
-    </form>
-    <form action="/users/update" method="GET">
-        <button>Update</button>
+<form action="/users/logout" method="GET">
+    <button>Logout</button>
+</form>
+<form action="/users/update" method="GET">
+    <button>Update</button>
 
-    </form><form action="/users/public_chat" method="GET">
-        <button>Public Chat</button>
-    </form>
+</form>
+<form action="/users/public_chat" method="GET">
+    <button>Public Chat</button>
+</form>
 
-    </form><form action="/users/game" method="GET">
-        <button>Play game</button>
-    </form>
+</form>
+<form action="/users/game" method="GET">
+    <button>Play game</button>
+</form>
 
-    <form action="/users/find" method="POST">
-        <input type="text" name="text_find" placeholder="type here..." required>
-        <button>Find</button>
-    </form>
+<form action="/users/find" method="POST">
+    <input type="text" name="text_find" placeholder="type here..." required>
+    <button>Find</button>
+</form>
 
-    </form><form action="/users/room1" method="GET">
-        <button>Enter Room 1</button>
-    </form>
+</form>
+<form action="/users/room1" method="GET">
+    <button>Enter Room 1</button>
+</form>
 
+<form action="/users/room" method="GET">
+    <button id="btnCreateRoom">Create Room</button>
+</form>
+
+<!--<button id="btnCreateRoom">Create Room</button>-->
+<div id="room_list">
+    <div class="content">
+        <ul id="room_online_list"></ul>
+    </div>
+</div>
 
 
 </body>
+<script>
 
-<!--<script>-->
-<!--    window.addEventListener('load', function () {-->
+    var onlineRoomList = document.getElementById('room_online_list');
+    var listRoom;
 
-<!--        const socket = io({-->
-<!--            transports: ['websocket']-->
-<!--        });-->
+    const socket = io({
+        transports: ['websocket']
+    });
 
-<!--        socket.on('connect', () => {-->
-<!--            console.log(socket.connected);-->
-<!--        });-->
+    window.addEventListener('load', function () {
+        socket.on('created_room', function (room) {
 
-<!--        socket.on('disconnect', () => {-->
-<!--            window.location.href = "/";-->
-<!--        });-->
-<!--    });-->
-<!--</script>-->
+            console.log(room);
+            onlineRoomList.insertAdjacentHTML('beforeend', `<li id=""> ${room.name} </li>`);
+        });
+        socket.on('list_room', function (msg) {
 
+            console.log(msg);
+            listRoom = msg;
+            for (var key in msg) {
+                onlineRoomList.insertAdjacentHTML('beforeend', `<li id=""><button id="msg.socketId"> join </button></li>`);
+            }
+        });
+
+    });
+
+
+</script>
 </html>
